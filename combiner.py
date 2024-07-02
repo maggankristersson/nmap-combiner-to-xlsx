@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import glob
 import os
+import argparse
 from xml.dom import minidom
 
 def parse_nmap_xml(file_path):
@@ -52,7 +53,7 @@ def combine_hosts_info(hosts_info_list):
     return combined_hosts
 
 def create_combined_xml(hosts_info, output_file):
-    root = ET.Element("results")
+    root = ET.Element("output")
 
     for host_info in hosts_info:
         host_elem = ET.SubElement(root, "host")
@@ -92,23 +93,48 @@ def create_combined_xml(hosts_info, output_file):
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(pretty_xml_as_str)
 
+def create_raw_combined_xml(nmap_files, output_file):
+    root = ET.Element("nmaprun")
+
+    for file in nmap_files:
+        nmap_root = parse_nmap_xml(file)
+        if nmap_root is not None:
+            for host in nmap_root.findall('host'):
+                root.append(host)
+
+    # Convert to a string and pretty print
+    xml_str = ET.tostring(root, encoding='utf-8')
+    parsed_xml = minidom.parseString(xml_str)
+    pretty_xml_as_str = parsed_xml.toprettyxml(indent="    ")
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(pretty_xml_as_str)
+
 def main():
-    nmap_files = glob.glob('output/*.xml')
+    parser = argparse.ArgumentParser(description="Combine Nmap XML files.")
+    parser.add_argument('-r', '--raw', action='store_true', help="Perform a raw merge of the XML files.")
+    args = parser.parse_args()
+
+    nmap_files = glob.glob('xml-files/*.xml')
     if not nmap_files:
         print("No XML files found in the specified directory.")
         return
 
-    all_hosts_info = []
+    if args.raw:
+        create_raw_combined_xml(nmap_files, 'raw_output.xml')
+        print("Raw combined XML file 'raw_output.xml' created successfully.")
+    else:
+        all_hosts_info = []
 
-    for file in nmap_files:
-        print(f"Processing file: {file}")
-        nmap_root = parse_nmap_xml(file)
-        hosts_info = extract_host_info(nmap_root)
-        all_hosts_info.append(hosts_info)
+        for file in nmap_files:
+            print(f"Processing file: {file}")
+            nmap_root = parse_nmap_xml(file)
+            hosts_info = extract_host_info(nmap_root)
+            all_hosts_info.append(hosts_info)
 
-    combined_hosts_info = combine_hosts_info(all_hosts_info)
-    create_combined_xml(combined_hosts_info, 'results.xml')
-    print("Combined XML file 'results.xml' created successfully.")
+        combined_hosts_info = combine_hosts_info(all_hosts_info)
+        create_combined_xml(combined_hosts_info, 'output.xml')
+        print("Combined XML file 'output.xml' created successfully.")
 
 if __name__ == "__main__":
     main()

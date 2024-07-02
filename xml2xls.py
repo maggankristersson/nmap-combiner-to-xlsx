@@ -49,8 +49,8 @@ def create_excel_file(data, output_file):
     df.to_excel(output_file, index=False)
 
 def main():
-    xml_file = 'results.xml'
-    output_file = 'results.xlsx'
+    xml_file = 'output.xml'
+    output_file = 'output.xlsx'
 
     xml_root = parse_results_xml(xml_file)
     data = extract_data_from_xml(xml_root)
