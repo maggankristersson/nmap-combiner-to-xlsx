@@ -21,10 +21,13 @@ def extract_host_info(nmap_root):
         host_info = {}
         address = host.find('address[@addrtype="ipv4"]')
         hostname = host.find('hostnames/hostname')
+        mac_address_elem = host.find('address[@addrtype="mac"]')
         ports = host.find('ports')
 
         host_info['address'] = address.attrib['addr'] if address is not None else 'N/A'
         host_info['hostname'] = hostname.attrib['name'] if hostname is not None else 'N/A'
+        host_info['mac_address'] = mac_address_elem.attrib['addr'] if mac_address_elem is not None else 'N/A'
+        host_info['vendor'] = mac_address_elem.attrib.get('vendor', 'N/A') if mac_address_elem is not None else 'N/A'
         host_info['ports'] = []
 
         if ports is not None:
@@ -63,6 +66,12 @@ def create_combined_xml(hosts_info, output_file):
 
         hostname_elem = ET.SubElement(host_elem, "hostname")
         hostname_elem.text = host_info['hostname']
+
+        mac_elem = ET.SubElement(host_elem, "mac_address")
+        mac_elem.text = host_info['mac_address']
+
+        vendor_elem = ET.SubElement(host_elem, "vendor")
+        vendor_elem.text = host_info['vendor']
 
         ports_elem = ET.SubElement(host_elem, "ports")
         for port in host_info['ports']:

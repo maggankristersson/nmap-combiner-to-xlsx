@@ -18,6 +18,8 @@ def extract_data_from_xml(xml_root):
     for host in xml_root.findall('host'):
         address = host.find('address').text if host.find('address') is not None else 'N/A'
         hostname = host.find('hostname').text if host.find('hostname') is not None else 'N/A'
+        mac_address = host.find('mac_address').text if host.find('mac_address') is not None else 'N/A'
+        vendor = host.find('vendor').text if host.find('vendor') is not None else 'N/A'
         ports = host.find('ports')
 
         port_info_list = []
@@ -39,6 +41,8 @@ def extract_data_from_xml(xml_root):
         data.append({
             'IP-address': address,
             'hostname': hostname,
+            'MAC-address': mac_address,
+            'vendor': vendor,
             'ports': '\n'.join(port_info_list)
         })
     
