@@ -38,10 +38,10 @@ def extract_host_info(nmap_root):
                     'protocol': port.attrib['protocol'],
                     'state': port.find('state').attrib['state'],
                     'service': {
-                        'name': service.attrib.get('name', 'N/A') if service is not None else 'N/A',
-                        'product': service.attrib.get('product', 'N/A') if service is not None else 'N/A',
-                        'version': service.attrib.get('version', 'N/A') if service is not None else 'N/A',
-                        'extrainfo': service.attrib.get('extrainfo', 'N/A') if service is not None else 'N/A'
+                        'name': service.attrib.get('name', ' ') if service is not None else ' ',
+                        'product': service.attrib.get('product', ' ') if service is not None else ' ',
+                        'version': service.attrib.get('version', ' ') if service is not None else ' ',
+                        'extrainfo': service.attrib.get('extrainfo', ' ') if service is not None else ' '
                     }
                 }
                 host_info['ports'].append(port_info)
